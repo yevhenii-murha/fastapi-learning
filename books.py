@@ -21,19 +21,30 @@ class Book:
 
 
 class BookRequest(BaseModel):
-    id: Optional[int] = None
+    id: Optional[int] = Field(description="ID is not needed on create", default=None)
     title: str = Field(min_length=3)
     author: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=100)
     rating: float = Field(ge=1, le=5)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "A new book",
+                "author": "Author",
+                "description": "A new description of a book",
+                "rating": 5
+            }
+        }
+    }
 
 
 BOOKS = [
     Book(1, "Computer Science Pro", "codingwithroby", "A very nice book!", 5),
     Book(2, "Be fast with FastAPI", "codingwithroby", "A great book!", 5),
     Book(3, "Master Endpoints", "codingwithroby", "A awesome book!", 5),
-    Book(4, "HP1", "Author 1", "Book Description", 5),
-    Book(5, "HP2", "Author 2", "Book Description", 5),
+    Book(4, "HP1", "Author 1", "Book Description", 4),
+    Book(5, "HP2", "Author 2", "Book Description", 3),
     Book(6, "HP3", "Author 3", "Book Description", 5),
 ]
 
@@ -41,6 +52,22 @@ BOOKS = [
 @app.get("/books")
 async def read_all_books():
     return BOOKS
+
+
+@app.get("/books/{book_id}")
+async def read_book(book_id: int):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+
+
+@app.get("/books/")
+async def read_book_by_rating(book_rating: int):
+    books_to_return = []
+    for book in BOOKS:
+        if book.rating == book_rating:
+            books_to_return.append(book)
+    return books_to_return
 
 
 @app.post("/create-book")
@@ -56,3 +83,10 @@ def find_book_id(book: Book):
         book.id = 1
 
     return book
+
+
+@app.put("/books/update_book")
+async def update_book(book: BookRequest):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i] = Book(**book.model_dump())
