@@ -47,6 +47,11 @@ def render_login_page(request: Request):
     return templates.TemplateResponse(request, "login.html")
 
 
+@router.get("/register-page")
+def render_register_page(request: Request):
+    return templates.TemplateResponse(request, "register.html")
+
+
 ### Endpoints ###
 def authenticate_user(username: str, password: str, db):
     user = db.query(Users).filter(Users.username == username).first()
