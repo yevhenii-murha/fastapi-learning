@@ -57,7 +57,10 @@ async def render_todo_page(request: Request, db: db_dependency):
         return templates.TemplateResponse(
             request=request,
             name="todo.html",
-            context={"todos": todos}
+            context={
+                "todos": todos,
+                "user": user
+            }
         )
 
     except:
